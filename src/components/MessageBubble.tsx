@@ -14,10 +14,10 @@ export function MessageBubble({
   const isUser = role === "user";
 
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-5`}>
       <div
         className={`
-          max-w-[80%] rounded-2xl px-4 py-3 text-sm
+          max-w-[85%] rounded-2xl px-4 py-3 text-base leading-relaxed
           ${
             isUser
               ? "bg-primary text-primary-foreground rounded-br-sm"
@@ -27,10 +27,10 @@ export function MessageBubble({
       >
         {isUser ? (
           // User messages — plain text, no markdown needed
-          <p>{content}</p>
+          <p className="whitespace-pre-wrap">{content}</p>
         ) : (
           // Assistant messages — render markdown
-          <div className="prose prose-sm dark:prose-invert max-w-none">
+          <div className="prose prose-neutral dark:prose-invert max-w-none prose-p:my-2 prose-headings:mt-4 prose-headings:mb-2 prose-li:my-0.5 [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
             <ReactMarkdown>{content}</ReactMarkdown>
             {/* Blinking cursor while streaming */}
             {isStreaming && (
