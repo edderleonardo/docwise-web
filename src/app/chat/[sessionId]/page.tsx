@@ -3,6 +3,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getStatus, deleteSession } from "@/lib/api";
+import {
+  clearStoredSessionId,
+  getStoredSessionId,
+  storeSessionId,
+} from "@/lib/session";
 import { useChat } from "@/hooks/useChat";
 import { ChatWindow } from "@/components/ChatWindow";
 import { QuotaBar } from "@/components/QuotaBar";
@@ -144,9 +149,14 @@ export default function ChatPage() {
         setFilename(status.filename);
         setMaxQuestions(status.max_questions);
         setInitialQuestionsUsed(status.questions_used);
+        // Track this as the active session so the next upload replaces it
+        storeSessionId(sessionId);
         setIsReady(true);
       } catch {
-        // Session not found — redirect to home
+        // Session not found — forget it and redirect to home
+        if (getStoredSessionId() === sessionId) {
+          clearStoredSessionId();
+        }
         router.push("/");
       }
     }
@@ -154,8 +164,15 @@ export default function ChatPage() {
   }, [sessionId, router]);
 
   const handleDelete = async () => {
-    await deleteSession(sessionId);
-    router.push("/");
+    try {
+      await deleteSession(sessionId);
+      clearStoredSessionId();
+    } catch {
+      // Best effort: the stored id stays around, so the next upload
+      // replaces this session server-side even if the delete failed.
+    } finally {
+      router.push("/");
+    }
   };
 
   if (!isReady) {

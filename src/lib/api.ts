@@ -43,9 +43,17 @@ export async function getConfig(): Promise<AppConfig> {
 }
 
 // Upload a PDF and get back a session_id
-export async function uploadDocument(file: File): Promise<UploadResponse> {
+export async function uploadDocument(
+  file: File,
+  previousSessionId?: string | null,
+): Promise<UploadResponse> {
   const formData = new FormData();
   formData.append("file", file);
+  // Backend deletes the replaced session (and its chunks) before creating
+  // the new one, so abandoned sessions don't wait for the TTL
+  if (previousSessionId) {
+    formData.append("previous_session_id", previousSessionId);
+  }
 
   const response = await fetch(`${API_URL}/documents/upload`, {
     method: "POST",

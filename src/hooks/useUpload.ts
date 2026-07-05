@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { uploadDocument } from "@/lib/api";
+import { getStoredSessionId, storeSessionId } from "@/lib/session";
 
 // All possible states during the upload flow
 type UploadStatus = "idle" | "uploading" | "processing" | "ready" | "error";
@@ -30,8 +31,10 @@ export function useUpload() {
       setError(null);
       setFilename(file.name);
 
-      // Send to backend — this generates chunks + embeddings
-      const response = await uploadDocument(file);
+      // Send to backend — this generates chunks + embeddings.
+      // Passing the stored session id replaces the previous document.
+      const response = await uploadDocument(file, getStoredSessionId());
+      storeSessionId(response.session_id);
 
       setStatus("ready");
 
