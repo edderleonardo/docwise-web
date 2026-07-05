@@ -25,6 +25,23 @@ export interface DeleteResponse {
   session_id: string;
 }
 
+export interface AppConfig {
+  max_questions: number;
+  max_pdf_size_mb: number;
+  session_ttl_hours: number;
+}
+
+// Public limits configured in the backend — single source of truth
+export async function getConfig(): Promise<AppConfig> {
+  const response = await fetch(`${API_URL}/config`);
+
+  if (!response.ok) {
+    throw new Error("Failed to load config");
+  }
+
+  return response.json();
+}
+
 // Upload a PDF and get back a session_id
 export async function uploadDocument(file: File): Promise<UploadResponse> {
   const formData = new FormData();

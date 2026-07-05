@@ -11,17 +11,17 @@ export function useUpload() {
   const [error, setError] = useState<string | null>(null);
   const [filename, setFilename] = useState<string | null>(null);
 
-  const upload = async (file: File) => {
+  const upload = async (file: File, maxSizeMb: number = 10) => {
     // Validate file type before even hitting the backend
     if (file.type !== "application/pdf") {
       setError("Only PDF files are allowed");
       return;
     }
 
-    // Validate file size — 10MB max (same as backend)
-    const maxSize = 10 * 1024 * 1024;
+    // Validate file size — same limit as the backend
+    const maxSize = maxSizeMb * 1024 * 1024;
     if (file.size > maxSize) {
-      setError("File too large. Maximum size is 10MB");
+      setError(`File too large. Maximum size is ${maxSizeMb}MB`);
       return;
     }
 
